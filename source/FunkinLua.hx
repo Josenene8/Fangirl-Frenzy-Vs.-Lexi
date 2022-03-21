@@ -5,7 +5,6 @@ import llua.State;
 import llua.Convert;
 #end
 
-import animateatlas.AtlasFrameMaker;
 import flixel.FlxG;
 import flixel.input.keyboard.FlxKey;
 import flixel.tweens.FlxTween;
@@ -829,24 +828,7 @@ class FunkinLua {
 			tag = tag.replace('.', '');
 			resetSpriteTag(tag);
 			var leSprite:ModchartSprite = new ModchartSprite(x, y);
-			
-			switch(spriteType.toLowerCase()){
-				/* saving this until i can test it
-				case "texture":
-					leSprite.frames = AtlasFrameMaker.construct(image);
-					
-				case "packer"
-					leSprite.frames = Paths.getPackerAtlas(image);
-				*/
-				default:
-					leSprite.frames = Paths.getSparrowAtlas(image);
-			}
-			
-			
-			leSprite.antialiasing = ClientPrefs.globalAntialiasing;
-			PlayState.instance.modchartSprites.set(tag, leSprite);
 		});
-
 		Lua_helper.add_callback(lua, "makeGraphic", function(obj:String, width:Int, height:Int, color:String) {
 			var colorNum:Int = Std.parseInt(color);
 			if(!color.startsWith('0x')) colorNum = Std.parseInt('0xff' + color);

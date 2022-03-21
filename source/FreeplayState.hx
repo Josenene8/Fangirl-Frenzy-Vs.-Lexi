@@ -52,8 +52,9 @@ class FreeplayState extends MusicBeatState
 
 	override function create()
 	{
-		Paths.clearStoredMemory();
-		Paths.clearUnusedMemory();
+		#if MODS_ALLOWED
+		Paths.destroyLoadedImages();
+		#end
 		
 		PlayState.isStoryMode = false;
 		WeekData.reloadWeekFiles(false);
@@ -174,22 +175,33 @@ class FreeplayState extends MusicBeatState
 		textBG.alpha = 0.6;
 		add(textBG);
 
-		#if PRELOAD_ALL
-		var leText:String = "Press SPACE to listen to the Song / Press CTRL to open the Gameplay Changers Menu / Press RESET to Reset your Score and Accuracy.";
-		var size:Int = 16;
+        #if android
+	        #if PRELOAD_ALL
+			var leText:String = "Press X to listen to the Song / Press C to open the Gameplay Changers Menu / Press Y to Reset your Score and Accuracy.";
+			var size:Int = 16;
+			#else
+			var leText:String = "Press C to open the Gameplay Changers Menu / Press Y to Reset your Score and Accuracy.";
+			var size:Int = 18;
+			#end
 		#else
-		var leText:String = "Press CTRL to open the Gameplay Changers Menu / Press RESET to Reset your Score and Accuracy.";
-		var size:Int = 18;
+			#if PRELOAD_ALL
+			var leText:String = "Press SPACE to listen to the Song / Press CTRL to open the Gameplay Changers Menu / Press RESET to Reset your Score and Accuracy.";
+			var size:Int = 16;
+			#else
+			var leText:String = "Press CTRL to open the Gameplay Changers Menu / Press RESET to Reset your Score and Accuracy.";
+			var size:Int = 18;
+			#end
 		#end
+		
 		var text:FlxText = new FlxText(textBG.x, textBG.y + 4, FlxG.width, leText, size);
 		text.setFormat(Paths.font("vcr.ttf"), size, FlxColor.WHITE, RIGHT);
 		text.scrollFactor.set();
 		add(text);
-		
-		#if mobileC
-		addVirtualPad(FULL, A_B_X_Y);
+
+                #if android
+		addVirtualPad(FULL, A_B_C_X_Y);
 		#end
-		
+
 		super.create();
 	}
 
@@ -251,8 +263,8 @@ class FreeplayState extends MusicBeatState
 		var upP = controls.UI_UP_P;
 		var downP = controls.UI_DOWN_P;
 		var accepted = controls.ACCEPT;
-		var space = FlxG.keys.justPressed.SPACE;
-		var ctrl = FlxG.keys.justPressed.CONTROL;
+	        var space = FlxG.keys.justPressed.SPACE#if android || _virtualpad.buttonX.justPressed #end;
+		var ctrl = FlxG.keys.justPressed.CONTROL#if android || _virtualpad.buttonC.justPressed #end;
 
 		var shiftMult:Int = 1;
 		if(FlxG.keys.pressed.SHIFT) shiftMult = 3;
@@ -265,12 +277,6 @@ class FreeplayState extends MusicBeatState
 		{
 			changeSelection(shiftMult);
 		}
-
-		// if(!(songs[curSelected].songName.toLowerCase()=='frenzy'))
-		// if(!(songs[curSelected].songName.toLowerCase()=='nightfall'))
-		// if(!(songs[curSelected].songName.toLowerCase()=='fandemonium'))
-		// if(!(songs[curSelected].songName.toLowerCase()=='owgh'))
-		// if(!(songs[curSelected].songName.toLowerCase()=='fandemonium-beta'))
 
 		if (controls.UI_LEFT_P)
 			changeDiff(-1);
@@ -351,7 +357,7 @@ class FreeplayState extends MusicBeatState
 					
 			destroyFreeplayVocals();
 		}
-		else if(controls.RESET)
+		else if(controls.RESET#if android || _virtualpad.buttonY.justPressed #end)
 		{
 			openSubState(new ResetScoreSubState(songs[curSelected].songName, curDifficulty, songs[curSelected].songCharacter));
 			FlxG.sound.play(Paths.sound('scrollMenu'));
@@ -369,50 +375,6 @@ class FreeplayState extends MusicBeatState
 
 	function changeDiff(change:Int = 0)
 	{
-
-		// if(songs[curSelected].songName.toLowerCase()=="frenzy")
-		// 	{
-		// 		curDifficulty = 1; //Force it to hard difficulty.
-		// 		#if !switch
-		// 		intendedScore = Highscore.getScore(songs[curSelected].songName, curDifficulty);
-		// 		#end
-				
-		// 	}
-	
-		// if(songs[curSelected].songName.toLowerCase()=="nightfall")
-		// 	{
-		// 		curDifficulty = 1;
-		// 		#if !switch
-		// 		intendedScore = Highscore.getScore(songs[curSelected].songName, curDifficulty);
-		// 		#end
-					
-		// 	}
-
-		// if(songs[curSelected].songName.toLowerCase()=="fandemonium")
-		// 	{
-		// 		curDifficulty = 1;
-		// 		#if !switch
-		// 		intendedScore = Highscore.getScore(songs[curSelected].songName, curDifficulty);
-		// 		#end
-					
-		// 	}
-		// if(songs[curSelected].songName.toLowerCase()=="owgh")
-		// 	{
-		// 		curDifficulty = 1;
-		// 		#if !switch
-		// 		intendedScore = Highscore.getScore(songs[curSelected].songName, curDifficulty);
-		// 		#end
-							
-		// 	}
-		// if(songs[curSelected].songName.toLowerCase()=="fandemonium-beta")
-		// 	{
-		// 		curDifficulty = 1;
-		// 		#if !switch
-		// 		intendedScore = Highscore.getScore(songs[curSelected].songName, curDifficulty);
-		// 		#end
-							
-		// 	}
-
 		curDifficulty += change;
 
 		if (curDifficulty < 0)
